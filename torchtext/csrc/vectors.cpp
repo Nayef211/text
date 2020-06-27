@@ -2,6 +2,8 @@
 #include <string>
 #include <torch/script.h>
 
+using c10::Dict;
+
 namespace torchtext {
 namespace {
 
@@ -13,13 +15,14 @@ public:
   // members, thus they needs to be public.
   // std::vector<std::string> tokens_;
   // std::vector<torch::Tensor> vectors_;
-  std::unordered_map<std::string, torch::Tensor> stovectors_;
+  // std::unordered_map<std::string, torch::Tensor> stovectors_;
+  Dict<std::string, torch::Tensor> stovectors_;
   torch::Tensor unk_tensor_;
 
   explicit Vectors(const std::vector<std::string> &tokens,
                    const std::vector<torch::Tensor> &vectors,
                    const torch::Tensor &unk_tensor)
-      : unk_tensor_(unk_tensor) {
+      : unk_tensor_(std::move(unk_tensor)) {
     // guarding against size mismatch of vectors and tokens
     if (tokens.size() != vectors.size()) {
       throw std::runtime_error(
@@ -35,26 +38,36 @@ public:
         throw std::runtime_error("Duplicate token found in tokens list: " +
                                  tokens[i]);
       }
-      stovectors_[tokens[i]] = vectors[i];
+      stovectors_.insert(std::move(tokens[i]), std::move(vectors[i]));
     }
   }
 
   // constructor for loading serialized object
-  explicit Vectors(
-      const std::unordered_map<std::string, torch::Tensor> &stovectors,
-      const torch::Tensor &unk_tensor)
-      : stovectors_(stovectors), unk_tensor_(unk_tensor){};
+  explicit Vectors(const Dict<std::string, torch::Tensor> &stovectors,
+                   const torch::Tensor &unk_tensor)
+      : stovectors_(std::move(stovectors)),
+        unk_tensor_(std::move(unk_tensor)){};
+
+  // // constructor for loading serialized object
+  // explicit Vectors(const Dict<std::string, torch::Tensor> &stovectors,
+  //                  const torch::Tensor &unk_tensor) {
+  //   std::cout << "Started deserializing Vector" << std::endl;
+  //   stovectors_ = std::move(stovectors);
+  //   unk_tensor_ = std::move(unk_tensor);
+
+  //   std::cout << "Finished deserializing Vector" << std::endl;
+  // };
 
   torch::Tensor __getitem__(const std::string &token) const {
     const auto &item = stovectors_.find(token);
     if (item != stovectors_.end()) {
-      return item->second;
+      return item->value();
     }
     return unk_tensor_;
   }
 
   void __setitem__(const std::string &token, const torch::Tensor &vector) {
-    stovectors_[token] = vector;
+    stovectors_.insert(token, vector);
   }
 
   int64_t __len__() { return stovectors_.size(); }
@@ -70,44 +83,14 @@ static auto vectors =
         .def("__len__", &Vectors::__len__)
         .def_pickle(
             // __setstate__
-            // [](const c10::intrusive_ptr<Vectors> &self)
-            //     -> std::tuple<std::vector<std::string>,
-            //                   std::vector<torch::Tensor>, torch::Tensor> {
-            //   std::vector<std::string> tokens;
-            //   std::vector<torch::Tensor> vectors;
-            //   tokens.reserve(self->stovectors_.size());
-
-            //   for (const auto &kv : self->stovectors_) {
-            //     tokens.push_back(kv.first);
-            //     vectors.push_back(kv.second);
-            //   }
-
-            //   std::tuple<std::vector<std::string>,
-            //   std::vector<torch::Tensor>,
-            //              torch::Tensor>
-            //       states(tokens, vectors, self->unk_tensor_);
-            //   return states;
-            // },
-            [](const c10::intrusive_ptr<Vectors> &self) -> std::tuple<
-                std::unordered_map<std::string, torch::Tensor>, torch::Tensor> {
-
-              std::tuple<std::unordered_map<std::string, torch::Tensor>,
-                         torch::Tensor>
+            [](const c10::intrusive_ptr<Vectors> &self)
+                -> std::tuple<Dict<std::string, torch::Tensor>, torch::Tensor> {
+              std::tuple<Dict<std::string, torch::Tensor>, torch::Tensor>
                   states(self->stovectors_, self->unk_tensor_);
               return states;
             },
             // __getstate__
-            // [](std::tuple<std::vector<std::string>,
-            // std::vector<torch::Tensor>,
-            //               torch::Tensor>
-            //        states) -> c10::intrusive_ptr<Vectors> {
-            //   return c10::make_intrusive<Vectors>(
-            //       std::move(std::get<0>(states)),
-            //       std::move(std::get<1>(states)),
-            //       std::move(std::get<2>(states)));
-            // }
-            [](std::tuple<std::unordered_map<std::string, torch::Tensor>,
-                          torch::Tensor>
+            [](std::tuple<Dict<std::string, torch::Tensor>, torch::Tensor>
                    states) -> c10::intrusive_ptr<Vectors> {
               return c10::make_intrusive<Vectors>(
                   std::move(std::get<0>(states)),
