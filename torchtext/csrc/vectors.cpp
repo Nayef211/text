@@ -48,16 +48,6 @@ public:
       : stovectors_(std::move(stovectors)),
         unk_tensor_(std::move(unk_tensor)){};
 
-  // // constructor for loading serialized object
-  // explicit Vectors(const Dict<std::string, torch::Tensor> &stovectors,
-  //                  const torch::Tensor &unk_tensor) {
-  //   std::cout << "Started deserializing Vector" << std::endl;
-  //   stovectors_ = std::move(stovectors);
-  //   unk_tensor_ = std::move(unk_tensor);
-
-  //   std::cout << "Finished deserializing Vector" << std::endl;
-  // };
-
   torch::Tensor __getitem__(const std::string &token) const {
     const auto &item = stovectors_.find(token);
     if (item != stovectors_.end()) {
