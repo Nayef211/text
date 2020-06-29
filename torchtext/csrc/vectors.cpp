@@ -2,14 +2,12 @@
 #include <string>
 #include <torch/script.h>
 
-using c10::Dict;
-
 namespace torchtext {
 namespace {
 
 struct Vectors : torch::CustomClassHolder {
 public:
-  Dict<std::string, torch::Tensor> stovec_;
+  std::unordered_map<std::string, torch::Tensor> stovec_;
   std::vector<std::string> tokens_;
   torch::Tensor vectors_;
   torch::Tensor unk_tensor_;
@@ -34,14 +32,14 @@ public:
         throw std::runtime_error("Duplicate token found in tokens list: " +
                                  tokens[i]);
       }
-      stovec_.insert(std::move(tokens[i]), vectors_.select(0, i));
+      stovec_.insert({std::move(tokens[i]), vectors_.select(0, i)});
     }
   }
 
   torch::Tensor __getitem__(const std::string &token) const {
     const auto &item = stovec_.find(token);
     if (item != stovec_.end()) {
-      return item->value();
+      return item->second;
     }
     return unk_tensor_;
   }
@@ -49,11 +47,11 @@ public:
   void __setitem__(const std::string &token, const torch::Tensor &vector) {
     const auto &item = stovec_.find(token);
     if (item != stovec_.end()) {
-      item->value() = vector;
+      item->second = vector;
     } else {
       tokens_.push_back(token);
       vectors_ = torch::cat({vectors_, vector}, /*dim=*/0);
-      stovec_.insert(token, vectors_.select(0, stovec_.size()));
+      stovec_.insert({token, vectors_.select(0, stovec_.size())});
     }
   }
 
