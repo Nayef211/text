@@ -15,7 +15,6 @@ protected:
   uint32_t find(const std::string &) const;
   uint32_t find(const std::string &, uint32_t h) const;
 
-  // std::vector<int32_t> word2int_;
   int32_t word2int_[MAX_VOCAB_SIZE];
   std::vector<std::string> words_;
 

@@ -12,9 +12,9 @@ from torchtext._torchtext import Vocab as VocabPybind
 def benchmark_experimental_vocab():
     def _run_benchmark_lookup(tokens, vocab):
         t0 = time.monotonic()
-        for _ in range(20):
-            for token in tokens:
-                vocab[token]
+        # for _ in range(0):
+        for token in tokens:
+            vocab[token]
         print("Lookup time:", time.monotonic() - t0)
 
     train, = AG_NEWS(data_select='train')
@@ -51,7 +51,7 @@ def benchmark_experimental_vocab():
     print("Vocab Experimental - Not Jit Mode")
     _run_benchmark_lookup(tokens, v_experimental)
 
-    # experimental Vocab jit lookup
+    # # experimental Vocab jit lookup
     # print("Vocab Experimental - Jit Mode")
     # _run_benchmark_lookup(tokens, jit_v_experimental)
 
