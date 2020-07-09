@@ -18,7 +18,6 @@ protected:
   std::vector<std::string> words_;
 
   int32_t size_;
-  //   int64_t ntokens_;
 
 public:
   explicit Dictionary();
