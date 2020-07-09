@@ -8,17 +8,21 @@
 
 namespace torchtext {
 
-Dictionary::Dictionary() : word2int_(MAX_VOCAB_SIZE, -1), size_(0) {}
+Dictionary::Dictionary() : size_(0) {
+  // set all indices to -1
+  for (uint32_t i = 0; i < MAX_VOCAB_SIZE; i++) {
+    word2int_[i] = -1;
+  }
+}
 
 uint32_t Dictionary::find(const std::string &w) const {
   return find(w, hash(w));
 }
 
 uint32_t Dictionary::find(const std::string &w, uint32_t h) const {
-  uint32_t word2intsize = word2int_.size();
-  uint32_t id = h % word2intsize;
+  uint32_t id = h % MAX_VOCAB_SIZE;
   while (word2int_[id] != -1 && words_[word2int_[id]] != w) {
-    id = (id + 1) % word2intsize;
+    id = (id + 1) % MAX_VOCAB_SIZE;
   }
   return id;
 }

@@ -10,12 +10,13 @@ namespace torchtext {
 class Dictionary {
 protected:
   // static const int32_t MAX_VOCAB_SIZE = 30000000;
-  static const int32_t MAX_VOCAB_SIZE = 100000;
+  static const uint32_t MAX_VOCAB_SIZE = 100000;
 
   uint32_t find(const std::string &) const;
   uint32_t find(const std::string &, uint32_t h) const;
 
-  std::vector<int32_t> word2int_;
+  // std::vector<int32_t> word2int_;
+  int32_t word2int_[MAX_VOCAB_SIZE];
   std::vector<std::string> words_;
 
   int32_t size_;
