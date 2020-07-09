@@ -4,6 +4,7 @@ from . import datasets
 from . import utils
 from . import vocab
 from . import experimental
+from . import _torchtext
 
 
 try:
@@ -16,7 +17,8 @@ __all__ = ['data',
            'datasets',
            'utils',
            'vocab',
-           'experimental']
+           'experimental',
+           '_torchtext']
 
 
 def _init_extension():

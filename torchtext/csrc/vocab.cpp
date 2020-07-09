@@ -3,6 +3,9 @@
 #include <string>
 #include <torch/script.h>
 
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 namespace torchtext {
 namespace {
 
@@ -11,18 +14,31 @@ using c10::Dict;
 struct Vocab : torch::CustomClassHolder {
 private:
   int64_t unk_index_;
-  // Dict<std::string, int64_t> stoi_;
 
 public:
   // stoi_, and unordered_map holds the serialized params passed in
   // during initialization. We need this because we need to be able to serialize
   // the model so that we can save the scripted object. Pickle will get the
   // serialized model from these members, thus they needs to be public.
-  // std::vector<std::string> itos_;
   Dictionary stoi_;
   std::string unk_token_;
 
+  // explicit Vocab(const std::vector<std::string> &tokens,
+  //                const std::string &unk_token)
+  //     : unk_token_(std::move(unk_token)) {
+  //   for (std::size_t i = 0; i < tokens.size(); i++) {
+  //     // tokens should not have any duplicates
+  //     if (stoi_.getId(tokens[i]) != -1) {
+  //       throw std::runtime_error("Duplicate token found in tokens list: " +
+  //                                tokens[i]);
+  //     }
+  //     stoi_.add(tokens[i]);
+  //   }
+  //   unk_index_ = stoi_.getId(unk_token);
+  // }
+
   explicit Vocab(const std::vector<std::string> &tokens,
+                 const std::vector<int64_t> &hashes,
                  const std::string &unk_token)
       : unk_token_(std::move(unk_token)) {
     for (std::size_t i = 0; i < tokens.size(); i++) {
@@ -31,22 +47,24 @@ public:
         throw std::runtime_error("Duplicate token found in tokens list: " +
                                  tokens[i]);
       }
-      stoi_.add(std::move(tokens[i]));
+      stoi_.add(tokens[i], static_cast<uint32_t>(hashes[i]));
     }
     unk_index_ = stoi_.getId(unk_token);
   }
 
   int64_t __len__() const { return stoi_.size(); }
 
-  int64_t __getitem__(const std::string &token) const {
-    const int32_t index = stoi_.getId(token);
+  int64_t __getitem__(const std::string &token, const int64_t h) const {
+    const int32_t index = stoi_.getId(token, static_cast(uint32_t)(h));
     if (index != -1) {
       return index;
     }
     return unk_index_;
   }
 
-  void append_token(const std::string &token) { stoi_.add(std::move(token)); }
+  void append_token(const std::string &token, const int64_t h) {
+    stoi_.add(std::move(token));
+  }
 
   void insert_token(const std::string &token, const int64_t &index) {
     if (index < 0 || index > stoi_.size()) {
@@ -134,3 +152,34 @@ static auto vocab =
             });
 } // namespace
 } // namespace torchtext
+
+using namespace torchtext;
+namespace py = pybind11;
+
+PYBIND11_MODULE(_torchtext, m) {
+  py::class_<Vocab>(m, "Vocab")
+      .def(py::init<std::vector<std::string>, std::string>())
+      .def("__getitem__", &Vocab::__getitem__)
+      .def("__len__", &Vocab::__len__)
+      .def("insert_token", &Vocab::insert_token)
+      .def("append_token", &Vocab::append_token)
+      .def("lookup_token", &Vocab::lookup_token)
+      .def("lookup_tokens", &Vocab::lookup_tokens)
+      .def("lookup_indices", &Vocab::lookup_indices)
+      .def("get_stoi", &Vocab::get_stoi)
+      .def("get_itos", &Vocab::get_itos);
+  // .def_pickle(
+  //     // __getstate__
+  //     [](const c10::intrusive_ptr<Vocab> &self)
+  //         -> std::tuple<std::vector<std::string>, std::string> {
+  //       std::tuple<std::vector<std::string>, std::string> states(
+  //           self->stoi_.getWords(), self->unk_token_);
+  //       return states;
+  //     },
+  //     // __setstate__
+  //     [](std::tuple<std::vector<std::string>, std::string> states)
+  //         -> c10::intrusive_ptr<Vocab> {
+  //       return c10::make_intrusive<Vocab>(std::move(std::get<0>(states)),
+  //                                         std::move(std::get<1>(states)));
+  //     });
+}

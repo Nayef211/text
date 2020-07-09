@@ -4,6 +4,8 @@ from typing import Dict, List
 import torch
 import torch.nn as nn
 
+from torchtext._torchtext import Vocab as VocabPybind
+
 logger = logging.getLogger(__name__)
 
 
@@ -36,7 +38,7 @@ class Vocab(nn.Module):
         >>> v2 = Vocab(OrderedDict([(token, 1) for token in tokens]))
     """
 
-    def __init__(self, ordered_dict, min_freq=1, unk_token='<unk>', specials=('<unk>', '<pad>'), specials_first=True):
+    def __init__(self, ordered_dict, min_freq=1, unk_token='<unk>', specials=('<unk>', '<pad>'), specials_first=False):
         super(Vocab, self).__init__()
 
         if not unk_token:
@@ -59,7 +61,8 @@ class Vocab(nn.Module):
         else:
             tokens += list(specials)
 
-        self.vocab = torch.classes.torchtext.Vocab(tokens, unk_token)
+        # self.vocab = torch.classes.torchtext.Vocab(tokens, unk_token)
+        self.vocab = VocabPybind(tokens, unk_token)
 
     @torch.jit.export
     def __len__(self) -> int:
