@@ -23,8 +23,8 @@ public:
     if (static_cast<int>(tokens.size()) != vectors.size(0)) {
       throw std::runtime_error(
           "Mismatching sizes for tokens and vectors. Size of tokens: " +
-          std::to_string(tokens.size()) +
-          ", size of vectors: " + std::to_string(vectors.size(0)) + ".");
+          std::to_string(tokens.size()) + ", size of vectors: " +
+          std::to_string(vectors.size(0)) + ".");
     }
 
     stovec_.reserve(tokens.size());
@@ -80,15 +80,14 @@ static auto vectors =
         .def("__setitem__", &Vectors::__setitem__)
         .def("__len__", &Vectors::__len__)
         .def_pickle(
-            // __setstate__
-            [](const c10::intrusive_ptr<Vectors> &self)
-                -> std::tuple<std::vector<std::string>, torch::Tensor,
-                              torch::Tensor> {
+            // __getstate__
+            [](const c10::intrusive_ptr<Vectors> &self) -> std::tuple<
+                std::vector<std::string>, torch::Tensor, torch::Tensor> {
               std::tuple<std::vector<std::string>, torch::Tensor, torch::Tensor>
                   states(self->tokens_, self->vectors_, self->unk_tensor_);
               return states;
             },
-            // __getstate__
+            // __setstate__
             [](std::tuple<std::vector<std::string>, torch::Tensor,
                           torch::Tensor>
                    states) -> c10::intrusive_ptr<Vectors> {

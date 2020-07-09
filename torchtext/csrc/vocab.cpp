@@ -23,22 +23,7 @@ public:
   Dictionary stoi_;
   std::string unk_token_;
 
-  // explicit Vocab(const std::vector<std::string> &tokens,
-  //                const std::string &unk_token)
-  //     : unk_token_(std::move(unk_token)) {
-  //   for (std::size_t i = 0; i < tokens.size(); i++) {
-  //     // tokens should not have any duplicates
-  //     if (stoi_.getId(tokens[i]) != -1) {
-  //       throw std::runtime_error("Duplicate token found in tokens list: " +
-  //                                tokens[i]);
-  //     }
-  //     stoi_.add(tokens[i]);
-  //   }
-  //   unk_index_ = stoi_.getId(unk_token);
-  // }
-
   explicit Vocab(const std::vector<std::string> &tokens,
-                 const std::vector<int64_t> &hashes,
                  const std::string &unk_token)
       : unk_token_(std::move(unk_token)) {
     for (std::size_t i = 0; i < tokens.size(); i++) {
@@ -47,24 +32,49 @@ public:
         throw std::runtime_error("Duplicate token found in tokens list: " +
                                  tokens[i]);
       }
-      stoi_.add(tokens[i], static_cast<uint32_t>(hashes[i]));
+      stoi_.add(tokens[i]);
     }
     unk_index_ = stoi_.getId(unk_token);
   }
 
+  // explicit Vocab(const std::vector<std::string> &tokens,
+  //                const std::vector<int64_t> &hashes,
+  //                const std::string &unk_token)
+  //     : unk_token_(std::move(unk_token)) {
+  //   for (std::size_t i = 0; i < tokens.size(); i++) {
+  //     // tokens should not have any duplicates
+  //     if (stoi_.getId(tokens[i]) != -1) {
+  //       throw std::runtime_error("Duplicate token found in tokens list: " +
+  //                                tokens[i]);
+  //     }
+  //     stoi_.add(tokens[i], static_cast<uint32_t>(hashes[i]));
+  //   }
+  //   unk_index_ = stoi_.getId(unk_token);
+  // }
+
   int64_t __len__() const { return stoi_.size(); }
 
-  int64_t __getitem__(const std::string &token, const int64_t h) const {
-    const int32_t index = stoi_.getId(token, static_cast(uint32_t)(h));
+  int64_t __getitem__(const std::string &token) const {
+    const int32_t index = stoi_.getId(token);
     if (index != -1) {
       return index;
     }
     return unk_index_;
   }
 
-  void append_token(const std::string &token, const int64_t h) {
-    stoi_.add(std::move(token));
-  }
+  // int64_t __getitem__(const std::string &token, const int64_t &h) const {
+  //   const int32_t index = stoi_.getId(token, static_cast<uint32_t>(h));
+  //   if (index != -1) {
+  //     return index;
+  //   }
+  //   return unk_index_;
+  // }
+
+  void append_token(const std::string &token) { stoi_.add(std::move(token)); }
+
+  // void append_token(const std::string &token, const int64_t &h) {
+  //   stoi_.add(std::move(token));
+  // }
 
   void insert_token(const std::string &token, const int64_t &index) {
     if (index < 0 || index > stoi_.size()) {

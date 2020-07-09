@@ -32,14 +32,13 @@ void Dictionary::add(const std::string &w) {
 }
 
 void Dictionary::add(const std::string &w, uint32_t h) {
-  uint32_t h = find(w);
   if (word2int_[h] == -1) {
     words_.push_back(w);
     word2int_[h] = size_++;
   }
 }
 
-void Dictionary::insert(const std::string &w, const uint32_t id) {
+void Dictionary::insert(const std::string &w, uint32_t id) {
   assert(id < size_);
 
   // ensure word not in dictionary
@@ -66,8 +65,7 @@ int32_t Dictionary::getId(const std::string &w) const {
   return word2int_[h];
 }
 
-int32_t Dictionary::getId(const std::string &w, const int32_t h) const {
-  uint32_t h = find(w, h);
+int32_t Dictionary::getId(const std::string &w, uint32_t h) const {
   return word2int_[h];
 }
 

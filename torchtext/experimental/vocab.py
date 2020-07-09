@@ -38,7 +38,7 @@ class Vocab(nn.Module):
         >>> v2 = Vocab(OrderedDict([(token, 1) for token in tokens]))
     """
 
-    def __init__(self, ordered_dict, min_freq=1, unk_token='<unk>', specials=('<unk>', '<pad>'), specials_first=False):
+    def __init__(self, ordered_dict, min_freq=1, unk_token='<unk>', specials=('<unk>', '<pad>'), specials_first=True):
         super(Vocab, self).__init__()
 
         if not unk_token:

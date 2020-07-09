@@ -12,7 +12,7 @@ from torchtext._torchtext import Vocab as VocabPybind
 def benchmark_experimental_vocab():
     def _run_benchmark_lookup(tokens, vocab):
         t0 = time.monotonic()
-        for i in range(2):
+        for _ in range(20):
             for token in tokens:
                 vocab[token]
         print("Lookup time:", time.monotonic() - t0)

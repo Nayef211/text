@@ -29,8 +29,8 @@ public:
   std::vector<std::string> getWords() const;
   uint32_t hash(const std::string &) const;
   void add(const std::string &);
-  void add(const std::string &w, uint32_t h);
-  void insert(const std::string &w, const uint32_t id);
+  void add(const std::string &w, uint32_t);
+  void insert(const std::string &, uint32_t);
   void dump(std::ostream &) const;
-
+};
 } // namespace torchtext
