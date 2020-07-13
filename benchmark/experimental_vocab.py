@@ -4,7 +4,7 @@ import time
 import torch
 from torchtext.experimental.datasets import AG_NEWS
 from torchtext.experimental.vocab import Vocab as VocabExperimental
-from torchtext.vocab import Vocab 
+from torchtext.vocab import Vocab
 
 from torchtext._torchtext import Vocab as VocabPybind
 
@@ -12,9 +12,9 @@ from torchtext._torchtext import Vocab as VocabPybind
 def benchmark_experimental_vocab():
     def _run_benchmark_lookup(tokens, vocab):
         t0 = time.monotonic()
-        # for _ in range(0):
-        for token in tokens:
-            vocab[token]
+        for _ in range(10):
+            for token in tokens:
+                vocab[token]
         print("Lookup time:", time.monotonic() - t0)
 
     train, = AG_NEWS(data_select='train')
