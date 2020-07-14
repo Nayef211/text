@@ -105,7 +105,11 @@ class Vocab(nn.Module):
         else:
             tokens += list(specials)
 
-        self.vocab = torch.classes.torchtext.Vocab(tokens, unk_token)
+        # stoi is simply a reverse dict for itos
+        self.stoi.update({tok: i for i, tok in enumerate(self.itos)})
+
+        
+        # self.vocab = torch.classes.torchtext.Vocab(tokens, unk_token)
 
     @torch.jit.export
     def __len__(self) -> int:
