@@ -2,7 +2,7 @@ from collections import (Counter, OrderedDict)
 import time
 
 import torch
-from torchtext.experimental.datasets import AG_NEWS
+from torchtext.experimental.datasets import AG_NEWS, DBpedia, IMDB, YahooAnswers
 from torchtext.experimental.vocab import Vocab as VocabExperimental
 from torchtext.vocab import Vocab
 
@@ -17,7 +17,11 @@ def benchmark_experimental_vocab():
                 vocab[token]
         print("Lookup time:", time.monotonic() - t0)
 
-    train, = AG_NEWS(data_select='train')
+    # train, = AG_NEWS(data_select='train')
+    # train, = DBpedia(data_select='train')
+    # train, = IMDB(data_select='train')
+    # train, = YahooAnswers(data_select='train')
+
     vocab = train.get_vocab()
     tokens = []
 
@@ -28,12 +32,14 @@ def benchmark_experimental_vocab():
     counter = Counter(tokens)
     sorted_by_freq_tuples = sorted(counter.items(), key=lambda x: x[1], reverse=True)
     ordered_dict = OrderedDict(sorted_by_freq_tuples)
+    print("Num tokens", len(tokens))
+    print("Vocab size", len(ordered_dict))
 
     # existing Vocab construction
-    # print("Vocab")
-    # t0 = time.monotonic()
-    # v_existing = Vocab(counter)
-    # print("Construction time:", time.monotonic() - t0)
+    print("Vocab")
+    t0 = time.monotonic()
+    v_existing = Vocab(counter)
+    print("Construction time:", time.monotonic() - t0)
 
     # experimental Vocab construction
     print("Vocab Experimental")
@@ -43,9 +49,9 @@ def benchmark_experimental_vocab():
     print("Construction time:", time.monotonic() - t0)
     # jit_v_experimental = torch.jit.script(v_experimental)
 
-    # # existing Vocab not jit lookup
-    # print("Vocab - Not Jit Mode")
-    # _run_benchmark_lookup(tokens, v_existing)
+    # existing Vocab not jit lookup
+    print("Vocab - Not Jit Mode")
+    _run_benchmark_lookup(tokens, v_existing)
 
     # experimental Vocab not jit lookup
     print("Vocab Experimental - Not Jit Mode")
