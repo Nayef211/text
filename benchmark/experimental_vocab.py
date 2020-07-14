@@ -17,7 +17,7 @@ def benchmark_experimental_vocab():
                 vocab[token]
         print("Lookup time:", time.monotonic() - t0)
 
-    # train, = AG_NEWS(data_select='train')
+    train, = AG_NEWS(data_select='train')
     # train, = DBpedia(data_select='train')
     # train, = IMDB(data_select='train')
     # train, = YahooAnswers(data_select='train')
@@ -36,26 +36,25 @@ def benchmark_experimental_vocab():
     print("Vocab size", len(ordered_dict))
 
     # existing Vocab construction
-    print("Vocab")
     t0 = time.monotonic()
     v_existing = Vocab(counter)
     print("Construction time:", time.monotonic() - t0)
 
-    # experimental Vocab construction
-    print("Vocab Experimental")
-    t0 = time.monotonic()
-    v_experimental = VocabExperimental(ordered_dict)
+    # # experimental Vocab construction
+    # print("Vocab Experimental")
+    # t0 = time.monotonic()
+    # v_experimental = VocabExperimental(ordered_dict)
 
-    print("Construction time:", time.monotonic() - t0)
+    # print("Construction time:", time.monotonic() - t0)
     # jit_v_experimental = torch.jit.script(v_experimental)
 
     # existing Vocab not jit lookup
     print("Vocab - Not Jit Mode")
     _run_benchmark_lookup(tokens, v_existing)
 
-    # experimental Vocab not jit lookup
-    print("Vocab Experimental - Not Jit Mode")
-    _run_benchmark_lookup(tokens, v_experimental)
+    # # experimental Vocab not jit lookup
+    # print("Vocab Experimental - Not Jit Mode")
+    # _run_benchmark_lookup(tokens, v_experimental)
 
     # # experimental Vocab jit lookup
     # print("Vocab Experimental - Jit Mode")
