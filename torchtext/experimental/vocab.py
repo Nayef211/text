@@ -1,6 +1,6 @@
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 import logging
-from typing import Dict, List, DefaultDict
+from typing import Dict, List
 import warnings
 
 import torch
@@ -102,8 +102,8 @@ class Vocab(nn.Module):
         self.unk_token: str = unk_token
 
         # stoi is simply a reverse dict for itos
-        self.stoi: DefaultDict[str, int] = defaultdict()
-        self.stoi.update({tok: i for i, tok in enumerate(self.itos)})
+        self.stoi: Dict[str, int] = {}
+        self.stoi.update({token: i for i, token in enumerate(self.itos)})
         # self.vocab = torch.classes.torchtext.Vocab(tokens, unk_token)
 
     @torch.jit.export
@@ -211,9 +211,7 @@ class Vocab(nn.Module):
         Returns:
             stoi (dict): dictionary mapping tokens to indices.
         """
-        dict_stoi: Dict[str, int] = dict(self.stoi)
-        print(type(dict_stoi))
-        return dict_stoi
+        return self.stoi
 
     @torch.jit.export
     def get_itos(self) -> List[str]:
