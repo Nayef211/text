@@ -10,8 +10,9 @@ from torchtext.vocab import Vocab
 def benchmark_experimental_vocab():
     def _run_benchmark_lookup(tokens, vocab):
         t0 = time.monotonic()
-        for token in tokens:
-            vocab[token]
+        for _ in range(10):
+            for token in tokens:
+                vocab[token]
         print("Lookup time:", time.monotonic() - t0)
 
     train, = AG_NEWS(data_select='train')
@@ -25,11 +26,11 @@ def benchmark_experimental_vocab():
     sorted_by_freq_tuples = sorted(counter.items(), key=lambda x: x[1], reverse=True)
     ordered_dict = OrderedDict(sorted_by_freq_tuples)
 
-    # existing Vocab construction
-    print("Vocab")
-    t0 = time.monotonic()
-    v_existing = Vocab(counter)
-    print("Construction time:", time.monotonic() - t0)
+    # # existing Vocab construction
+    # print("Vocab")
+    # t0 = time.monotonic()
+    # v_existing = Vocab(counter)
+    # print("Construction time:", time.monotonic() - t0)
 
     # experimental Vocab construction
     print("Vocab Experimental")
@@ -38,9 +39,9 @@ def benchmark_experimental_vocab():
     print("Construction time:", time.monotonic() - t0)
     jit_v_experimental = torch.jit.script(v_experimental)
 
-    # existing Vocab not jit lookup
-    print("Vocab - Not Jit Mode")
-    _run_benchmark_lookup(tokens, v_existing)
+    # # existing Vocab not jit lookup
+    # print("Vocab - Not Jit Mode")
+    # _run_benchmark_lookup(tokens, v_existing)
 
     # experimental Vocab not jit lookup
     print("Vocab Experimental - Not Jit Mode")
