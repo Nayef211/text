@@ -1,6 +1,6 @@
 from collections import OrderedDict, defaultdict
 import logging
-from typing import Dict, List
+from typing import Dict, List, DefaultDict
 import warnings
 
 import torch
@@ -89,7 +89,7 @@ class Vocab(nn.Module):
         if not unk_token:
             raise ValueError("A default unk token wasn't provided.")
 
-        self.itos = []
+        self.itos: List[str] = []
         for token, freq in ordered_dict.items():
             if freq >= min_freq:
                 self.itos.append(token)
@@ -99,10 +99,10 @@ class Vocab(nn.Module):
             warnings.warn("The `unk_token` '{}' wasn't found in the `ordered_dict`. Adding the `unk_token` "
                           "to the end of the Vocab.".format(unk_token), RuntimeWarning)
         
-        self.unk_token = unk_token
+        self.unk_token: str = unk_token
 
         # stoi is simply a reverse dict for itos
-        self.stoi = defaultdict()
+        self.stoi: DefaultDict[str, int] = defaultdict()
         self.stoi.update({tok: i for i, tok in enumerate(self.itos)})
         # self.vocab = torch.classes.torchtext.Vocab(tokens, unk_token)
 
@@ -122,7 +122,7 @@ class Vocab(nn.Module):
         Returns:
             index (int): the index corresponding to the associated token.
         """
-        return self.stoi[token]
+        return self.stoi.get(token, self.stoi[self.unk_token])
 
     @torch.jit.export
     def insert_token(self, token: str, index: int) -> None:
@@ -134,6 +134,18 @@ class Vocab(nn.Module):
         Raises:
             RuntimeError: if `index` not between [0, Vocab.size()] or if token already exists in the vocab.
         """
+        if not 0 <= index <= len(self.itos):
+            raise RuntimeError("Specified index {} is out of bounds of the size of `stoi` dicitonary: {}.".format(index, len(self.itos)))
+
+        if token in self.stoi:
+            raise RuntimeError("Token {} already exists in Vocab with index: {}.".format(token, self.stoi[token]))
+
+        # offset all tokens with indices >= index
+        for i in range(index, len(self.itos)):
+            self.stoi[self.itos[i]] += 1
+
+        self.itos.insert(index, token)
+        self.stoi[token] = index
         # self.vocab.insert_token(token, index)
 
     @torch.jit.export
@@ -158,7 +170,7 @@ class Vocab(nn.Module):
             RuntimeError: if `index` not between [0, itos.size()].
         """
         if not 0 <= index < len(self.itos):
-            raise RuntimeError("Specified index: {} is out of bounds of the size of `itos`: {}.".format(index, len(self.itos)))
+            raise RuntimeError("Specified index {} is out of bounds of the size of `itos`: {}.".format(index, len(self.itos)))
 
         return self.itos[index]
 
@@ -174,7 +186,7 @@ class Vocab(nn.Module):
         Raises:
             RuntimeError: if an index within `indices` is not between [0, itos.size()].
         """
-        tokens = []
+        tokens: List[str] = []
         for index in indices:
             tokens.append(self.lookup_token(index))
         return tokens
@@ -188,7 +200,10 @@ class Vocab(nn.Module):
         Returns:
             indices (List[int]): the 'indices` associated with `tokens`.
         """
-        return self.vocab.lookup_indices(tokens)
+        indices: List[int] = []
+        for token in tokens:
+            indices.append(self.__getitem__(token))
+        return indices
 
     @torch.jit.export
     def get_stoi(self) -> Dict[str, int]:
@@ -196,7 +211,9 @@ class Vocab(nn.Module):
         Returns:
             stoi (dict): dictionary mapping tokens to indices.
         """
-        return self.stoi
+        dict_stoi: Dict[str, int] = dict(self.stoi)
+        print(type(dict_stoi))
+        return dict_stoi
 
     @torch.jit.export
     def get_itos(self) -> List[str]:

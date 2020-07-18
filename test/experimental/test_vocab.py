@@ -103,7 +103,7 @@ class TestVocab(TorchtextTestCase):
         expected_stoi = {x: index for index, x in enumerate(expected_itos)}
 
         self.assertEqual(jit_v.get_itos(), expected_itos)
-        self.assertEqual(dict(jit_v.get_stoi()), expected_stoi)
+        self.assertEqual(jit_v.get_stoi(), expected_stoi)
 
     def test_vocab_lookup_token(self):
         token_to_freq = {'a': 2, 'b': 2, 'c': 2}
