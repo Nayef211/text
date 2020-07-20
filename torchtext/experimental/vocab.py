@@ -7,6 +7,8 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 
+from torchtext._torchtext import Vocab as VocabPybind
+
 
 logger = logging.getLogger(__name__)
 
@@ -98,8 +100,8 @@ class Vocab(nn.Module):
             tokens.append(unk_token)
             warnings.warn("The `unk_token` '{}' wasn't found in the `ordered_dict`. Adding the `unk_token` "
                           "to the end of the Vocab.".format(unk_token), RuntimeWarning)
-        self.vocab = torch.classes.torchtext.Vocab(tokens, unk_token)
-
+        # self.vocab = torch.classes.torchtext.Vocab(tokens, unk_token)
+        self.vocab = VocabPybind(tokens, unk_token)
     @torch.jit.export
     def __len__(self) -> int:
         r"""Returns:

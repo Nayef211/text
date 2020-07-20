@@ -2,6 +2,9 @@
 #include <string>
 #include <torch/script.h>
 
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 namespace torchtext {
 namespace {
 
@@ -139,3 +142,34 @@ static auto vocab =
             });
 } // namespace
 } // namespace torchtext
+
+using namespace torchtext;
+namespace py = pybind11;
+
+PYBIND11_MODULE(_torchtext, m) {
+  py::class_<Vocab>(m, "Vocab")
+      .def(py::init<std::vector<std::string>, std::string>())
+      .def("__getitem__", &Vocab::__getitem__)
+      .def("__len__", &Vocab::__len__)
+      .def("insert_token", &Vocab::insert_token)
+      .def("append_token", &Vocab::append_token)
+      .def("lookup_token", &Vocab::lookup_token)
+      .def("lookup_tokens", &Vocab::lookup_tokens)
+      .def("lookup_indices", &Vocab::lookup_indices)
+      .def("get_stoi", &Vocab::get_stoi)
+      .def("get_itos", &Vocab::get_itos);
+  // .def_pickle(
+  //     // __getstate__
+  //     [](const c10::intrusive_ptr<Vocab> &self)
+  //         -> std::tuple<std::vector<std::string>, std::string> {
+  //       std::tuple<std::vector<std::string>, std::string> states(
+  //           self->stoi_.getWords(), self->unk_token_);
+  //       return states;
+  //     },
+  //     // __setstate__
+  //     [](std::tuple<std::vector<std::string>, std::string> states)
+  //         -> c10::intrusive_ptr<Vocab> {
+  //       return c10::make_intrusive<Vocab>(std::move(std::get<0>(states)),
+  //                                         std::move(std::get<1>(states)));
+  //     });
+}
