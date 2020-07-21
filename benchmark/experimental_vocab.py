@@ -10,9 +10,10 @@ from torchtext.vocab import Vocab
 def benchmark_experimental_vocab():
     def _run_benchmark_lookup(tokens, vocab):
         t0 = time.monotonic()
-        for _ in range(5):
-            for token in tokens:
-                vocab[token]
+        for _ in range(10):
+            vocab.lookup_indices(tokens)
+            # for token in tokens:
+            #     vocab[token]
         print("Lookup time:", time.monotonic() - t0)
 
     train, = AG_NEWS(data_select='train')
