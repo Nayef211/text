@@ -1,7 +1,6 @@
 import torch
 import io
 from torchtext.utils import download_from_url, extract_archive, unicode_csv_reader
-import sys
 
 URLS = {
     'AG_NEWS':
@@ -34,17 +33,19 @@ def _create_data_from_csv(data_path):
 
 class RawTextIterableDataset(torch.utils.data.IterableDataset):
     """Defines an abstraction for raw text iterable datasets.
+
+
+class RawTextIterableDataset(torch.utils.data.IterableDataset):
+    """
+    Defines an abstraction for raw text iterable datasets.
     """
 
     def __init__(self, iterator):
-        """Initiate text-classification dataset.
+        """
+        Initiate text-classification dataset.
         """
         super(RawTextIterableDataset, self).__init__()
         self._iterator = iterator
-        self.has_setup = False
-        self.start = 0
-        self.num_lines = None
-
     def setup_iter(self, start=0, num_lines=None):
         self.start = start
         self.num_lines = num_lines
@@ -85,28 +86,29 @@ def AG_NEWS(*args, **kwargs):
 
     Create supervised learning dataset: AG_NEWS
 
-    Separately returns the training and test dataset
 
-    Arguments:
-        root: Directory where the datasets are saved. Default: ".data"
+def AG_NEWS(*args, **kwargs):
+    """Defines AG_NEWS datasets.
 
+    Create supervised learning dataset: AG_NEWS
     Examples:
         >>> train, test = torchtext.experimental.datasets.raw.AG_NEWS()
     """
 
     return _setup_datasets(*(("AG_NEWS",) + args), **kwargs)
 
+    Examples:
+        >>> train, test = torchtext.experimental.datasets.raw.AG_NEWS()
+
+    """
+
+    return _setup_datasets(*(("AG_NEWS",) + args), **kwargs)
+
 
 def SogouNews(*args, **kwargs):
-    """ Defines SogouNews datasets.
+    """Defines SogouNews datasets.
 
     Create supervised learning dataset: SogouNews
-
-    Separately returns the training and test dataset
-
-    Arguments:
-        root: Directory where the datasets are saved. Default: ".data"
-
     Examples:
         >>> train, test = torchtext.experimental.datasets.raw.SogouNews()
     """
@@ -114,53 +116,56 @@ def SogouNews(*args, **kwargs):
     return _setup_datasets(*(("SogouNews",) + args), **kwargs)
 
 
+    Examples:
+        >>> train, test = torchtext.experimental.datasets.raw.SogouNews()
+
+    """
+
+    return _setup_datasets(*(("SogouNews",) + args), **kwargs)
+
+
 def DBpedia(*args, **kwargs):
-    """ Defines DBpedia datasets.
+    """Defines DBpedia datasets.
 
     Create supervised learning dataset: DBpedia
-
-    Separately returns the training and test dataset
-
-    Arguments:
-        root: Directory where the datasets are saved. Default: ".data"
-
-    Examples:
         >>> train, test = torchtext.experimental.datasets.raw.DBpedia()
     """
 
     return _setup_datasets(*(("DBpedia",) + args), **kwargs)
 
 
-def YelpReviewPolarity(*args, **kwargs):
-    """ Defines YelpReviewPolarity datasets.
-
-    Create supervised learning dataset: YelpReviewPolarity
-
-    Separately returns the training and test dataset
-
-    Arguments:
-        root: Directory where the datasets are saved. Default: ".data"
 
     Examples:
-        >>> train, test = torchtext.experimental.datasets.raw.YelpReviewPolarity()
+        >>> train, test = torchtext.experimental.datasets.raw.DBpedia()
+
+    """
+
+    return _setup_datasets(*(("DBpedia",) + args), **kwargs)
+
+
+def YelpReviewPolarity(*args, **kwargs):
+    """Defines YelpReviewPolarity datasets.
+
+    Create supervised learning dataset: YelpReviewPolarity
     """
 
     return _setup_datasets(*(("YelpReviewPolarity",) + args), **kwargs)
 
 
 def YelpReviewFull(*args, **kwargs):
-    """ Defines YelpReviewFull datasets.
-
-    Create supervised learning dataset: YelpReviewFull
-
-    Separately returns the training and test dataset
-
-    Arguments:
-        root: Directory where the datasets are saved. Default: ".data"
 
     Examples:
-        >>> train, test = torchtext.experimental.datasets.raw.YelpReviewFull()
+        >>> train, test = torchtext.experimental.datasets.raw.YelpReviewPolarity()
+
     """
+
+    return _setup_datasets(*(("YelpReviewPolarity",) + args), **kwargs)
+
+
+def YelpReviewFull(*args, **kwargs):
+    """Defines YelpReviewFull datasets.
+
+    Create supervised learning dataset: YelpReviewFull
 
     return _setup_datasets(*(("YelpReviewFull",) + args), **kwargs)
 
@@ -168,35 +173,37 @@ def YelpReviewFull(*args, **kwargs):
 def YahooAnswers(*args, **kwargs):
     """ Defines YahooAnswers datasets.
 
-    Create supervised learning dataset: YahooAnswers
-
-    Separately returns the training and test dataset
-
-    Arguments:
-        root: Directory where the datasets are saved. Default: ".data"
-
     Examples:
-        >>> train, test = torchtext.experimental.datasets.raw.YahooAnswers()
+        >>> train, test = torchtext.experimental.datasets.raw.YelpReviewFull()
+
     """
 
+    return _setup_datasets(*(("YelpReviewFull",) + args), **kwargs)
+
+
+def YahooAnswers(*args, **kwargs):
+    """Defines YahooAnswers datasets.
+
+    Create supervised learning dataset: YahooAnswers
     return _setup_datasets(*(("YahooAnswers",) + args), **kwargs)
 
 
 def AmazonReviewPolarity(*args, **kwargs):
     """ Defines AmazonReviewPolarity datasets.
 
-    Create supervised learning dataset: AmazonReviewPolarity
-
-    Separately returns the training and test dataset
-
-    Arguments:
-        root: Directory where the datasets are saved. Default: ".data"
 
     Examples:
-        >>> train, test = torchtext.experimental.datasets.raw.AmazonReviewPolarity()
+        >>> train, test = torchtext.experimental.datasets.raw.YahooAnswers()
+
     """
 
-    return _setup_datasets(*(("AmazonReviewPolarity",) + args), **kwargs)
+    return _setup_datasets(*(("YahooAnswers",) + args), **kwargs)
+
+
+def AmazonReviewPolarity(*args, **kwargs):
+    """Defines AmazonReviewPolarity datasets.
+
+    Create supervised learning dataset: AmazonReviewPolarity
 
 
 def AmazonReviewFull(*args, **kwargs):
@@ -204,29 +211,31 @@ def AmazonReviewFull(*args, **kwargs):
 
     Create supervised learning dataset: AmazonReviewFull
 
-    Separately returns the training and test dataset
-
-    Arguments:
-        root: Directory where the datasets are saved. Default: ".data"
-
     Examples:
-        >>> train, test = torchtext.experimental.datasets.raw.AmazonReviewFull()
+        >>> train, test = torchtext.experimental.datasets.raw.AmazonReviewPolarity()
+
     """
 
-    return _setup_datasets(*(("AmazonReviewFull",) + args), **kwargs)
+    return _setup_datasets(*(("AmazonReviewPolarity",) + args), **kwargs)
 
+
+def AmazonReviewFull(*args, **kwargs):
+    """Defines AmazonReviewFull datasets.
+
+    Create supervised learning dataset: AmazonReviewFull
 
 def generate_imdb_data(key, extracted_files):
     for fname in extracted_files:
         if 'urls' in fname:
             continue
         elif key in fname and ('pos' in fname or 'neg' in fname):
-            with io.open(fname, encoding="utf8") as f:
-                label = 1 if 'pos' in fname else 0
-                yield label, f.read()
 
+    Examples:
+        >>> train, test = torchtext.experimental.datasets.raw.AmazonReviewFull()
 
-def IMDB(root='.data'):
+    """
+
+    return _setup_datasets(*(("AmazonReviewFull",) + args), **kwargs)
     """ Defines IMDB datasets.
 
     Create supervised learning dataset: IMDB
@@ -238,23 +247,24 @@ def IMDB(root='.data'):
 
     Examples:
         >>> train, test = torchtext.experimental.datasets.raw.IMDB()
-    """
 
-    dataset_tar = download_from_url(URLS['IMDB'], root=root)
-    extracted_files = extract_archive(dataset_tar)
-    train_iter = generate_imdb_data('train', extracted_files)
-    test_iter = generate_imdb_data('test', extracted_files)
+
+def IMDB(root='.data'):
+    """Defines IMDB datasets.
+
+    Create supervised learning dataset: IMDB
     return (RawTextIterableDataset(train_iter),
             RawTextIterableDataset(test_iter))
 
 
 DATASETS = {
-    'AG_NEWS': AG_NEWS,
-    'SogouNews': SogouNews,
-    'DBpedia': DBpedia,
-    'YelpReviewPolarity': YelpReviewPolarity,
-    'YelpReviewFull': YelpReviewFull,
-    'YahooAnswers': YahooAnswers,
+
+    Examples:
+        >>> train, test = torchtext.experimental.datasets.raw.IMDB()
+
+    """
+
+    dataset_tar = download_from_url(URLS['IMDB'], root=root)
     'AmazonReviewPolarity': AmazonReviewPolarity,
     'AmazonReviewFull': AmazonReviewFull,
     'IMDB': IMDB

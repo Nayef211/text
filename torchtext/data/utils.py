@@ -6,7 +6,7 @@ import re
 from functools import partial
 
 
-def _split_tokenizer(x): # noqa: F821
+def _split_tokenizer(x):  # noqa: F821
     # type: (str) -> List[str]
     return x.split()
 
@@ -167,26 +167,29 @@ def get_tokenizer(tokenizer, language='en'):
 
 def is_tokenizer_serializable(tokenizer, language):
     """Extend with other tokenizers which are found to not be serializable
+
+
+def is_tokenizer_serializable(tokenizer, language):
+    """
+    Extend with other tokenizers which are found to not be serializable.
     """
     if tokenizer == 'spacy':
-        return False
-    return True
-
-
-def interleave_keys(a, b):
+        return Falsea, b):
     """Interleave bits from two sort keys to form a joint sort key.
 
     Examples that are similar in both of the provided keys will have similar
     values for the key defined by this function. Useful for tasks with two
-    text fields like machine translation or natural language inference.
+def interleave_keys(a, b):
+    """Interleave bits from two sort keys to form a joint sort key.
+
+    Examples that are similar in both of the provided keys will have
+    similar values for the key defined by this function. Useful for
+    tasks with two text fields like machine translation or natural
+    language inference.
+
     """
     def interleave(args):
         return ''.join([x for t in zip(*args) for x in t])
-    return int(''.join(interleave(format(x, '016b') for x in (a, b))), base=2)
-
-
-def get_torch_version():
-    import torch
     v = torch.__version__
     version_substrings = v.split('.')
     major, minor = version_substrings[0], version_substrings[1]
@@ -217,12 +220,13 @@ def ngrams_iterator(token_list, ngrams):
 
     def _get_ngrams(n):
         return zip(*[token_list[i:] for i in range(n)])
+        >>> token_list = ['here', 'we', 'are']
+        >>> list(ngrams_iterator(token_list, 2))
+        >>> ['here', 'here we', 'we', 'we are', 'are']
 
-    for x in token_list:
-        yield x
-    for n in range(2, ngrams + 1):
-        for x in _get_ngrams(n):
-            yield ' '.join(x)
+    """
+
+    def _get_ngrams(n):oin(x)
 
 
 class RandomShuffler(object):
@@ -231,27 +235,39 @@ class RandomShuffler(object):
 
     def __init__(self, random_state=None):
         self._random_state = random_state
-        if self._random_state is None:
-            self._random_state = random.getstate()
 
-    @contextmanager
-    def use_internal_state(self):
-        """Use a specific RNG state."""
-        old_state = random.getstate()
-        random.setstate(self._random_state)
+
+class RandomShuffler(object):
+    """
+    Use random functions while keeping track of the random state to make it
+    reproducible and deterministic.
+    """
+
+    def __init__(self, random_state=None):
+        self._random_state = random_statee)
         yield
         self._random_state = random.getstate()
         random.setstate(old_state)
 
-    @property
-    def random_state(self):
-        return deepcopy(self._random_state)
 
-    @random_state.setter
-    def random_state(self, s):
-        self._random_state = s
+    @contextmanager
+    def use_internal_state(self):
+        """
+        Use a specific RNG state.
+        """
+        old_state = random.getstate()
+        random.setstate(self._random_state)
+        yield_random_state = s
 
     def __call__(self, data):
         """Shuffle and return a new list."""
+        with self.use_internal_state():
+            return random.sample(data, len(data))
+        self._random_state = s
+
+    def __call__(self, data):
+        """
+        Shuffle and return a new list.
+        """
         with self.use_internal_state():
             return random.sample(data, len(data))
