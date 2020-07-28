@@ -10,7 +10,7 @@ from torchtext.vocab import Vocab
 def benchmark_experimental_vocab():
     def _run_benchmark_lookup_list_tokens(tokens_lists, vocab):
         t0 = time.monotonic()
-        for _ in range(10):
+        for _ in range(1):
             for cur_tokens in tokens_lists:
                 vocab.lookup_indices(cur_tokens)
         print("Lookup time:", time.monotonic() - t0)
@@ -38,7 +38,7 @@ def benchmark_experimental_vocab():
 
     print("num tokens", len(tokens))
     print("num tokens list", len(tokens_lists))
-    print(tokens_lists[:3])
+    # print(tokens_lists[:3])
 
     counter = Counter(tokens)
     sorted_by_freq_tuples = sorted(counter.items(), key=lambda x: x[1], reverse=True)
@@ -55,20 +55,21 @@ def benchmark_experimental_vocab():
     v_experimental = VocabExperimental(ordered_dict)
 
     print("Construction time:", time.monotonic() - t0)
-    # jit_v_experimental = torch.jit.script(v_experimental)
 
     # # existing Vocab not jit lookup
     # print("Vocab - Not Jit Mode")
     # _run_benchmark_lookup(tokens, v_existing)
 
-    # experimental Vocab not jit lookup
-    print("Vocab Experimental - Not Jit Mode")
-    _run_benchmark_lookup_list_tokens(tokens_lists, v_experimental)
-    # _run_benchmark_lookup(tokens, v_experimental)
+    # # experimental Vocab not jit lookup
+    # print("Vocab Experimental - Not Jit Mode")
+    # _run_benchmark_lookup_list_tokens(tokens_lists, v_experimental)
+    # # _run_benchmark_lookup(tokens, v_experimental)
 
-    # # experimental Vocab jit lookup
-    # print("Vocab Experimental - Jit Mode")
-    # _run_benchmark_lookup(tokens, jit_v_experimental)
+    # experimental Vocab jit lookup
+    print("Vocab Experimental - Jit Mode")
+    jit_v_experimental = torch.jit.script(v_experimental)
+    _run_benchmark_lookup(tokens, jit_v_experimental)
+    _run_benchmark_lookup_list_tokens(tokens_lists, jit_v_experimental)
 
 
 if __name__ == "__main__":
