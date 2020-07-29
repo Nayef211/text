@@ -85,7 +85,7 @@ class Vocab(nn.Module):
         >>> v2 = Vocab(OrderedDict([(token, 1) for token in tokens]))
     """
 
-    def __init__(self, ordered_dict, min_freq=1, unk_token='<unk>'):
+    def __init__(self, ordered_dict, min_freq=1, unk_token='<unk>', use_pybind=False):
         super(Vocab, self).__init__()
 
         if not unk_token:
@@ -100,8 +100,12 @@ class Vocab(nn.Module):
             tokens.append(unk_token)
             warnings.warn("The `unk_token` '{}' wasn't found in the `ordered_dict`. Adding the `unk_token` "
                           "to the end of the Vocab.".format(unk_token), RuntimeWarning)
-        # self.vocab = torch.classes.torchtext.Vocab(tokens, unk_token)
-        self.vocab = VocabPybind(tokens, unk_token)
+
+        if use_pybind:
+            self.vocab = VocabPybind(tokens, unk_token)
+        else:
+            self.vocab = torch.classes.torchtext.Vocab(tokens, unk_token)
+            
     @torch.jit.export
     def __len__(self) -> int:
         r"""Returns:
