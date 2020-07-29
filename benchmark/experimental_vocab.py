@@ -62,13 +62,15 @@ def benchmark_experimental_vocab():
 
     # # experimental Vocab not jit lookup
     # print("Vocab Experimental - Not Jit Mode")
+    # _run_benchmark_lookup(tokens, v_experimental)
+    # _run_benchmark_lookup_list_tokens([tokens], v_experimental)
     # _run_benchmark_lookup_list_tokens(tokens_lists, v_experimental)
-    # # _run_benchmark_lookup(tokens, v_experimental)
 
     # experimental Vocab jit lookup
     print("Vocab Experimental - Jit Mode")
     jit_v_experimental = torch.jit.script(v_experimental)
-    _run_benchmark_lookup(tokens, jit_v_experimental)
+    # _run_benchmark_lookup(tokens, jit_v_experimental)
+    # _run_benchmark_lookup_list_tokens([tokens], jit_v_experimental)
     _run_benchmark_lookup_list_tokens(tokens_lists, jit_v_experimental)
 
 
