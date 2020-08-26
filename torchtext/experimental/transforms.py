@@ -3,6 +3,7 @@ import torch.nn as nn
 from typing import List
 from torchtext._torchtext import RegexTokenizer as RegexTokenizerPybind
 from collections import OrderedDict
+import numpy as np
 
 __all__ = [
     'BasicEnglishNormalize',
@@ -100,7 +101,12 @@ class BasicEnglishNormalize(nn.Module):
         Returns:
             List[str]: a list of tokens after normalizing and splitting on whitespace.
         """
-        return self.regex_tokenizer.forward(line).split()
+        arr = np.char.array(line, unicode = False)
+        print(arr)
+        nd_arr = np.array(arr, dtype=arr.dtype)
+        print(nd_arr)
+
+        return self.regex_tokenizer.forward(nd_arr)
 
     def to_ivalue(self):
         r"""Return a JITable BasicEnglishNormalize.

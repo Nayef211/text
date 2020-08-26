@@ -90,6 +90,7 @@ def download_from_url(url, path=None, root='.data', overwrite=False, hash_value=
 
     if path is None:
         _, filename = os.path.split(url)
+        print(url)
     else:
         root, filename = os.path.split(path)
 
@@ -103,6 +104,7 @@ def download_from_url(url, path=None, root='.data', overwrite=False, hash_value=
     if filename is not None:
         path = os.path.join(root, filename)
     # skip requests.get if path exists and not overwrite.
+    print("[PATH]", path)
     if os.path.exists(path):
         logging.info('File %s already exists.' % path)
         if not overwrite:

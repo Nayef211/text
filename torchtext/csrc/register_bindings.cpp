@@ -1,5 +1,7 @@
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
 #include <regex.h>
 #include <regex_tokenizer.h>
 #include <sentencepiece.h>
@@ -23,7 +25,19 @@ PYBIND11_MODULE(_torchtext, m) {
       .def_readonly("replacements_", &RegexTokenizer::replacements_)
       .def_readonly("to_lower_", &RegexTokenizer::to_lower_)
       .def(py::init<std::vector<std::string>, std::vector<std::string>, bool>())
-      .def("forward", &RegexTokenizer::forward);
+      // .def("forward", &RegexTokenizer::forward)
+      .def("forward", [](RegexTokenizer self,
+                         py::array_t<char, py::array::c_style> array) {
+        const char *str_ptr = array.data(0);
+        std::string str(str_ptr);
+
+        // size_t str_size = array.shape(0);
+
+        TORCH_CHECK(array.ndim() == 1, "Need to be a vector");
+
+        return self.forward(str);
+      });
+  // .def("forward", &RegexTokenizer::forward);
 
   py::class_<SentencePiece>(m, "SentencePiece")
       .def("Encode", &SentencePiece::Encode)
@@ -87,9 +101,8 @@ static auto regex_tokenizer =
         .def("forward", &RegexTokenizer::forward)
         .def_pickle(
             // __setstate__
-            [](const c10::intrusive_ptr<RegexTokenizer> &self)
-                -> std::tuple<std::vector<std::string>,
-                              std::vector<std::string>, bool> {
+            [](const c10::intrusive_ptr<RegexTokenizer> &self) -> std::tuple<
+                std::vector<std::string>, std::vector<std::string>, bool> {
               return std::make_tuple(self->patterns_, self->replacements_,
                                      self->to_lower_);
             },
